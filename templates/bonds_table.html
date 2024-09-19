@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bond Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a40;
+            color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+        }
+        th {
+            background-color: #2a2a72;
+            color: #ffffff;
+        }
+        tr {
+            border-bottom: 1px solid #dddddd;
+        }
+        tr:nth-of-type(even) {
+            background-color: #2a2a72;
+        }
+        tr:nth-of-type(odd) {
+            background-color: #1a1a40;
+        }
+        tr:hover {
+            background-color: #3b3b8f;
+        }
+        td {
+            background-color: #2a2a72;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bond Table</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ISIN</th>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Coupon Date</th>
+                <th>Coupon Price</th>
+                <th>Nominal</th>
+                <th>Price</th>
+                <th>NKD</th>
+                <th>Redemption Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bond in bonds %}
+            <tr>
+                <td>{{ bond.id }}</td>
+                <td>{{ bond.isin }}</td>
+                <td>{{ bond.title }}</td>
+                <td>{{ bond.amount }}</td>
+                <td>{{ bond.coupon_date.strftime('%d-%m-%Y') }}</td>
+                <td>{{ bond.coupon_price }}</td>
+                <td>{{ bond.nominal }}</td>
+                <td>{{ bond.price }}</td>
+                <td>{{ bond.nkd }}</td>
+                <td>{{ bond.redemption_date.strftime('%d-%m-%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

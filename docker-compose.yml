@@ -1,0 +1,16 @@
+services:
+
+  bot:
+    image: my_bonds_bot
+    container_name: my_bonds_bot
+    stop_signal: SIGINT
+    build:
+      context: .
+    logging:
+      options:
+        max-file: "5"
+        max-size: "3m"
+    command: python3 -m bot
+    restart: unless-stopped
+    depends_on:
+      - redis
