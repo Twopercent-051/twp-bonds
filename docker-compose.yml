@@ -14,5 +14,3 @@ services:
     restart: unless-stopped
     ports:
       - "8003:8003"
-    depends_on:
-      - redis
