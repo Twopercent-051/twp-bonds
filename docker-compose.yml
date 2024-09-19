@@ -10,7 +10,7 @@ services:
       options:
         max-file: "5"
         max-size: "3m"
-    command: python3 -m bot
+    command: python3 -m app
     restart: unless-stopped
     ports:
       - "8003:8003"
