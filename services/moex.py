@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import Literal
 
@@ -26,10 +27,11 @@ class MoexAPI:
                     redemption_date = row["MATDATE"] if row["BUYBACKDATE"] == "0000-00-00" else row["BUYBACKDATE"]
                     redemption_date = datetime.strptime(redemption_date, "%Y-%m-%d").date()
                     coupon_date = datetime.strptime(row["NEXTCOUPON"], "%Y-%m-%d").date()
+                    print(row)
                     return MoexBondDTO(
                         id=sql_bond.id,
                         amount=sql_bond.amount,
-                        title=row["SHORTNAME"],
+                        title=row["SECNAME"],
                         isin=sql_bond.isin,
                         coupon_date=coupon_date,
                         coupon_price=round(float(row["COUPONVALUE"]) * sql_bond.amount, 2),
