@@ -15,5 +15,4 @@ class MoexBondDTO(DbBondDTO):
     coupon_price: float
     nominal: int
     price: float
-    nkd: float
     redemption_date: datetime

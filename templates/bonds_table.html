@@ -69,11 +69,11 @@
                 <td>{{ bond.isin }}</td>
                 <td>{{ bond.title }}</td>
                 <td>{{ bond.amount }}</td>
-                <td>{{ bond.coupon_date.strftime('%d-%m-%Y') }}</td>
+                <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
                 <td>{{ bond.coupon_price }}</td>
                 <td>{{ bond.nominal }}</td>
-                <td>{{ round(bond.price + bond.nkd, 2)}}</td>
-                <td>{{ bond.redemption_date.strftime('%d-%m-%Y') }}</td>
+                <td>{{ bond.price }}</td>
+                <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
             </tr>
             {% endfor %}
             <!-- Строка ИТОГО -->

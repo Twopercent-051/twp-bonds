@@ -27,6 +27,8 @@ class MoexAPI:
                     redemption_date = row["MATDATE"] if row["BUYBACKDATE"] == "0000-00-00" else row["BUYBACKDATE"]
                     redemption_date = datetime.strptime(redemption_date, "%Y-%m-%d").date()
                     coupon_date = datetime.strptime(row["NEXTCOUPON"], "%Y-%m-%d").date()
+                    price=round(float(row["PREVWAPRICE"]) * int(row["FACEVALUE"]) * sql_bond.amount / 100, 2)
+                    nkd = round(float(row["ACCRUEDINT"]) * sql_bond.amount, 2)
                     return MoexBondDTO(
                         id=sql_bond.id,
                         amount=sql_bond.amount,
@@ -35,8 +37,7 @@ class MoexAPI:
                         coupon_date=coupon_date,
                         coupon_price=round(float(row["COUPONVALUE"]) * sql_bond.amount, 2),
                         nominal=int(row["FACEVALUE"]) * sql_bond.amount,
-                        price=round(float(row["PREVWAPRICE"]) * int(row["FACEVALUE"]) * sql_bond.amount / 100, 2),
-                        nkd=round(float(row["ACCRUEDINT"]) * sql_bond.amount, 2),
+                        price=price + nkd,
                         redemption_date=redemption_date
                     )
 
