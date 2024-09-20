@@ -12,4 +12,13 @@ router = APIRouter()
 async def get_bonds(request: Request):
     sql_bonds = await BondsDAO.get_many()
     bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
-    return templates.TemplateResponse("bonds_table.html", {"request": request, "bonds": bonds})
+    total_amount = sum(bond.amount for bond in bonds)
+    total_nominal = sum(bond.nominal for bond in bonds)
+    total_price = sum(bond.price + bond.nkd for bond in bonds)
+    return templates.TemplateResponse("bonds_table.html", {
+        "request": request,
+        "bonds": bonds,
+        "total_amount": total_amount,
+        "total_price": total_price,
+        "total_nominal": total_nominal
+    })

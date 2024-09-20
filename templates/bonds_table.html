@@ -40,6 +40,10 @@
             background-color: #2a2a72;
             color: #ffffff;
         }
+        .total-row td {
+            background-color: #3b3b8f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -55,7 +59,6 @@
                 <th>Coupon Price</th>
                 <th>Nominal</th>
                 <th>Price</th>
-                <th>NKD</th>
                 <th>Redemption Date</th>
             </tr>
         </thead>
@@ -69,11 +72,20 @@
                 <td>{{ bond.coupon_date.strftime('%d-%m-%Y') }}</td>
                 <td>{{ bond.coupon_price }}</td>
                 <td>{{ bond.nominal }}</td>
-                <td>{{ bond.price }}</td>
-                <td>{{ bond.nkd }}</td>
+                <td>{{ bond.price + bond.nkd}}</td>
                 <td>{{ bond.redemption_date.strftime('%d-%m-%Y') }}</td>
             </tr>
             {% endfor %}
+            <!-- Строка ИТОГО -->
+            <tr class="total-row">
+                <td colspan="3">ИТОГО</td>
+                <td>{{ total_amount }}</td>
+                <td></td>
+                <td></td>
+                <td>{{ total_nominal }}</td>
+                <td>{{ total_price }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
 </body>
