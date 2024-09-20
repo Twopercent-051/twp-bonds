@@ -72,7 +72,7 @@
                 <td>{{ bond.coupon_date.strftime('%d-%m-%Y') }}</td>
                 <td>{{ bond.coupon_price }}</td>
                 <td>{{ bond.nominal }}</td>
-                <td>{{ bond.price + bond.nkd}}</td>
+                <td>{{ round(bond.price + bond.nkd, 2)}}</td>
                 <td>{{ bond.redemption_date.strftime('%d-%m-%Y') }}</td>
             </tr>
             {% endfor %}
