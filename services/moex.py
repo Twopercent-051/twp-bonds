@@ -37,7 +37,7 @@ class MoexAPI:
                         coupon_date=coupon_date,
                         coupon_price=round(float(row["COUPONVALUE"]) * sql_bond.amount, 2),
                         nominal=int(row["FACEVALUE"]) * sql_bond.amount,
-                        price=price + nkd,
+                        price=round(price + nkd, 2),
                         redemption_date=redemption_date
                     )
 
