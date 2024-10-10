@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     bot_token: str
     admin_ids: list[int]
+    webhook_url: str
 
     db_host: str
     db_port: int

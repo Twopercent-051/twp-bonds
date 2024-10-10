@@ -1,35 +1,59 @@
 import asyncio
+from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from aiogram.types import Update
 import uvicorn
 
-from create_app import dp, bot, app, logger
+from create_app import TLG_PATH, TLG_URL, dp, bot, logger
 from tgbot.handlers.main_handlers import router as tg_router
 
 from web_app.router import router as fastapi_router
 
+
+async def on_startup():
+    logger.info("Starting Bot")
+    webhook_info = await bot.get_webhook_info()
+    if webhook_info.url != TLG_URL:
+        await bot.delete_webhook()
+        await bot.set_webhook(url=TLG_URL, drop_pending_updates=True)
+    logger.info("Bot started")
+    logger.info(webhook_info)
+    dp.include_router(tg_router)
+
+
+async def on_shutdown():
+    await dp.storage.close()
+    await bot.session.close()
+    logger.info("Bot stopped")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await on_startup()
+    yield
+    await on_shutdown()
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(fastapi_router)
-dp.include_router(tg_router)
 
 
-async def start_fastapi():
-    config = uvicorn.Config(app=app, host="0.0.0.0", port=8003, log_level="warning")
+@app.post(f"/bot{TLG_PATH}", include_in_schema=False)
+async def bot_webhook(update: dict):
+    # logger.warning(update)
+    telegram_update = Update(**update)
+    await dp.feed_update(bot=bot, update=telegram_update)
+
+
+async def main():
+    config = uvicorn.Config(app=app, host="0.0.0.0", port=8003, log_level="info")
     server = uvicorn.Server(config)
     await server.serve()
 
 
-async def start_aiogram():
-    logger.info("Starting bot")
-    try:
-        await bot.delete_webhook()
-        await dp.start_polling(bot)
-    finally:
-        await dp.storage.close()
-        await bot.session.close()
-
-
-async def main():
-    await asyncio.gather(start_aiogram(), start_fastapi())
-
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.warning("Bot stopped")

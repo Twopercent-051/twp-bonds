@@ -4,7 +4,6 @@ import os
 import betterlogging as bl
 
 from aiogram import Bot, Dispatcher
-from fastapi import FastAPI
 from starlette.templating import Jinja2Templates
 
 from config import config
@@ -12,7 +11,7 @@ from config import config
 bot = Bot(token=config.bot_token)
 dp = Dispatcher()
 
-app = FastAPI()
+
 templates = Jinja2Templates(directory=f"{os.getcwd()}/templates")
 
 database_url = (
@@ -23,6 +22,9 @@ database_url = (
     f"{config.db_port}/"
     f"{config.db_name}"
 )
+
+TLG_PATH = f"/{config.bot_token}"
+TLG_URL = config.webhook_url + "/bot" + TLG_PATH
 
 logger = logging.getLogger(__name__)
 log_level = logging.INFO
