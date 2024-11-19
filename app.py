@@ -29,7 +29,7 @@ async def on_shutdown():
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_: FastAPI):
     await on_startup()
     yield
     await on_shutdown()
@@ -41,7 +41,6 @@ app.include_router(fastapi_router)
 
 @app.post(f"/bot{TLG_PATH}", include_in_schema=False)
 async def bot_webhook(update: dict):
-    # logger.warning(update)
     telegram_update = Update(**update)
     await dp.feed_update(bot=bot, update=telegram_update)
 

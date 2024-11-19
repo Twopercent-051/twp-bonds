@@ -15,10 +15,13 @@ async def get_bonds(request: Request):
     total_amount = sum(bond.amount for bond in bonds)
     total_nominal = sum(bond.nominal for bond in bonds)
     total_price = round(number=sum(bond.price for bond in bonds), ndigits=2)
-    return templates.TemplateResponse("bonds_table.html", {
-        "request": request,
-        "bonds": bonds,
-        "total_amount": total_amount,
-        "total_price": total_price,
-        "total_nominal": total_nominal
-    })
+    return templates.TemplateResponse(
+        "bonds_table.html",
+        {
+            "request": request,
+            "bonds": bonds,
+            "total_amount": total_amount,
+            "total_price": total_price,
+            "total_nominal": total_nominal,
+        },
+    )

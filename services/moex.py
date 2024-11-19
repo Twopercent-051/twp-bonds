@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from typing import Literal
 
@@ -18,16 +17,32 @@ class MoexAPI:
                 return await resp.text()
 
     @staticmethod
-    async def __get_one_bond_data(moex_data_list: list[str], sql_bond: DbBondDTO) -> MoexBondDTO:
+    async def __get_one_bond_data(
+        moex_data_list: list[str], sql_bond: DbBondDTO
+    ) -> MoexBondDTO:
         for moex_data in moex_data_list:
             soup = BeautifulSoup(moex_data, features="xml")
-            rows = soup.find("data", {"id": "securities"}).find_all('row')
+            rows = soup.find("data", {"id": "securities"}).find_all("row")
             for row in rows:
                 if row["SECID"] == sql_bond.isin:
-                    redemption_date = row["MATDATE"] if row["BUYBACKDATE"] == "0000-00-00" else row["BUYBACKDATE"]
-                    redemption_date = datetime.strptime(redemption_date, "%Y-%m-%d").date()
-                    coupon_date = datetime.strptime(row["NEXTCOUPON"], "%Y-%m-%d").date()
-                    price=round(float(row["PREVWAPRICE"]) * int(row["FACEVALUE"]) * sql_bond.amount / 100, 2)
+                    redemption_date = (
+                        row["MATDATE"]
+                        if row["BUYBACKDATE"] == "0000-00-00"
+                        else row["BUYBACKDATE"]
+                    )
+                    redemption_date = datetime.strptime(
+                        redemption_date, "%Y-%m-%d"
+                    ).date()
+                    coupon_date = datetime.strptime(
+                        row["NEXTCOUPON"], "%Y-%m-%d"
+                    ).date()
+                    price = round(
+                        float(row["PREVWAPRICE"])
+                        * int(row["FACEVALUE"])
+                        * sql_bond.amount
+                        / 100,
+                        2,
+                    )
                     nkd = round(float(row["ACCRUEDINT"]) * sql_bond.amount, 2)
                     return MoexBondDTO(
                         id=sql_bond.id,
@@ -35,10 +50,12 @@ class MoexAPI:
                         title=row["SECNAME"],
                         isin=sql_bond.isin,
                         coupon_date=coupon_date,
-                        coupon_price=round(float(row["COUPONVALUE"]) * sql_bond.amount, 2),
+                        coupon_price=round(
+                            float(row["COUPONVALUE"]) * sql_bond.amount, 2
+                        ),
                         nominal=int(row["FACEVALUE"]) * sql_bond.amount,
                         price=round(price + nkd, 2),
-                        redemption_date=redemption_date
+                        redemption_date=redemption_date,
                     )
 
     @classmethod
@@ -48,8 +65,7 @@ class MoexAPI:
         result = []
         for sql_bond in sql_bonds:
             bond_data = await cls.__get_one_bond_data(
-                moex_data_list=[other_moex_data, ofz_moex_data],
-                sql_bond=sql_bond
+                moex_data_list=[other_moex_data, ofz_moex_data], sql_bond=sql_bond
             )
             result.append(bond_data)
         return sorted(result, key=lambda bond: bond.coupon_date)

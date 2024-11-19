@@ -1,4 +1,3 @@
-import asyncio
 from typing import List
 
 from sqlalchemy import insert, update, delete, select
@@ -71,12 +70,7 @@ class BondsDAO(BaseDAO):
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by)
             data = await session.execute(query)
-            return [DbBondDTO.model_validate(obj=row, from_attributes=True) for row in data.scalars().all()]
-
-
-async def mytest():
-    await BondsDAO.delete()
-
-
-if __name__ == "__main__":
-    asyncio.run(mytest())
+            return [
+                DbBondDTO.model_validate(obj=row, from_attributes=True)
+                for row in data.scalars().all()
+            ]
