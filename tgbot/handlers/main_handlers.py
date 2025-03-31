@@ -49,7 +49,7 @@ async def get_bond_handler(message: Message):
         return await message.answer(text=text)
     current_balance = await MoneyBalanceDAO.get_one_or_none()
     if current_balance.balance < moex_bond.price:
-        text = "Баланс не может быть отрицательным"
+        text = f"Баланс не может быть отрицательным\nBalance: {current_balance.balance}\nPrice: {moex_bond.price}"
         return await message.answer(text=text)
     await MoneyBalanceDAO.update_by_id(item_id=current_balance.id, balance=current_balance.balance - moex_bond.price)
     sql_bond = await BondsDAO.get_one_or_none(isin=isin)
