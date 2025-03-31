@@ -61,7 +61,7 @@ class MoexAPI:
     async def get_one_bond_profile(cls, isin: str, amount: int) -> MoexBondDTO | None:
         ofz_moex_data = await cls.__get_request(section="TQOB")
         other_moex_data = await cls.__get_request(section="TQCB")
-        fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0)
+        fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0, cur_nominal=1000)
         bond_data = await cls.__get_one_bond_data(
             moex_data_list=[other_moex_data, ofz_moex_data],
             sql_bond=fake_sql_bond,
