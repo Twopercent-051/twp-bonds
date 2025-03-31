@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.requests import Request
 
 from create_app import templates
-from models.sql_dao import BondsDAO
+from models.sql_dao import BondsDAO, MoneyBalanceDAO
 from services.moex import MoexAPI
 
 router = APIRouter()
@@ -15,6 +15,7 @@ async def get_bonds(request: Request):
     total_amount = sum(bond.amount for bond in bonds)
     total_nominal = sum(bond.nominal for bond in bonds)
     total_price = round(number=sum(bond.price for bond in bonds), ndigits=2)
+    balance = await MoneyBalanceDAO.get_one_or_none()
     return templates.TemplateResponse(
         "bonds_table.html",
         {
@@ -23,5 +24,6 @@ async def get_bonds(request: Request):
             "total_amount": total_amount,
             "total_price": total_price,
             "total_nominal": total_nominal,
+            "current_balance": balance.amount,
         },
     )

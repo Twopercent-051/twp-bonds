@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     db_pass: str
     db_user: str
 
+    inner_port: int
+    outer_port: int
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
-config = Settings()
+config = Settings()  # type: ignore

@@ -7,6 +7,7 @@ class DbBondDTO(BaseModel):
     id: int
     isin: str
     amount: int
+    cur_nominal: int
 
 
 class MoexBondDTO(DbBondDTO):
@@ -16,3 +17,9 @@ class MoexBondDTO(DbBondDTO):
     nominal: int
     price: float
     redemption_date: datetime
+
+
+class MoneyBalanceDTO(BaseModel):
+    id: int
+    balance: float
+    currency: str

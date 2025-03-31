@@ -13,4 +13,6 @@ services:
     command: python3 -m app
     restart: unless-stopped
     ports:
-      - "8003:8003"
+       - "${OUTER_PORT}:${INNER_PORT}"
+    environment:
+      - ".env"

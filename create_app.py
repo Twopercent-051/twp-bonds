@@ -4,6 +4,7 @@ import os
 import betterlogging as bl
 
 from aiogram import Bot, Dispatcher
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from starlette.templating import Jinja2Templates
 
 from config import config
@@ -22,6 +23,7 @@ database_url = (
     f"{config.db_port}/"
     f"{config.db_name}"
 )
+scheduler = AsyncIOScheduler(timezone="UTC")
 
 TLG_PATH = f"/{config.bot_token}"
 TLG_URL = config.webhook_url + "/bot" + TLG_PATH

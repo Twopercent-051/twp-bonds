@@ -55,11 +55,19 @@
             background-color: #3b3b8f;
             font-weight: bold;
         }
+
+        .balance-container {
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
     <h1>Bond Table</h1>
+    <!-- Отображение текущего баланса -->
+    <div class="balance-container">Текущий баланс: {{ current_balance }} ₽</div>
     <table>
         <thead>
             <tr>
@@ -82,9 +90,9 @@
                 <td>{{ bond.title }}</td>
                 <td>{{ bond.amount }}</td>
                 <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
-                <td>{{ bond.coupon_price }}</td>
-                <td>{{ bond.nominal }}</td>
-                <td>{{ bond.price }}</td>
+                <td>{{ bond.coupon_price }} ₽</td>
+                <td>{{ bond.nominal }} ₽</td>
+                <td>{{ bond.price }} ₽</td>
                 <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
             </tr>
             {% endfor %}
@@ -94,8 +102,8 @@
                 <td>{{ total_amount }}</td>
                 <td></td>
                 <td></td>
-                <td>{{ total_nominal }}</td>
-                <td>{{ total_price }}</td>
+                <td>{{ total_nominal }} ₽</td>
+                <td>{{ total_price }} ₽</td>
                 <td></td>
             </tr>
         </tbody>

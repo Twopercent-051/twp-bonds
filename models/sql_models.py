@@ -19,3 +19,12 @@ class BondDB(BaseDB):
     id: Mapped[intpk]
     isin: Mapped[str_200]
     amount: Mapped[int]
+    cur_nominal: Mapped[int]
+
+
+class MoneyBalanceDB(BaseDB):
+    __tablename__ = "money_balances"
+
+    id: Mapped[intpk]
+    balance: Mapped[float] = mapped_column(server_default="0")
+    currency: Mapped[str_200] = mapped_column(server_default="RUB")

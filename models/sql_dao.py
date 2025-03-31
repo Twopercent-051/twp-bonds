@@ -4,8 +4,8 @@ from sqlalchemy import insert, update, delete, select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from create_app import database_url
-from models.schemas import DbBondDTO
-from models.sql_models import BondDB
+from models.schemas import DbBondDTO, MoneyBalanceDTO
+from models.sql_models import BondDB, MoneyBalanceDB
 
 engine = create_async_engine(url=database_url)
 
@@ -57,7 +57,7 @@ class BondsDAO(BaseDAO):
     model = BondDB
 
     @classmethod
-    async def get_one_or_none(cls, **filter_by) -> DbBondDTO:
+    async def get_one_or_none(cls, **filter_by) -> DbBondDTO | None:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by).limit(1)
             result = await session.execute(query)
@@ -70,7 +70,17 @@ class BondsDAO(BaseDAO):
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by)
             data = await session.execute(query)
-            return [
-                DbBondDTO.model_validate(obj=row, from_attributes=True)
-                for row in data.scalars().all()
-            ]
+            return [DbBondDTO.model_validate(obj=row, from_attributes=True) for row in data.scalars().all()]
+
+
+class MoneyBalanceDAO(BaseDAO):
+    model = MoneyBalanceDB
+
+    @classmethod
+    async def get_one_or_none(cls, currency: str = "RUB") -> MoneyBalanceDTO | None:
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(currency=currency).limit(1)
+            result = await session.execute(query)
+            row = result.scalars().one_or_none()
+            if row:
+                return MoneyBalanceDTO.model_validate(obj=row, from_attributes=True)

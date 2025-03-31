@@ -5,8 +5,9 @@ from fastapi import FastAPI
 from aiogram.types import Update
 import uvicorn
 
-from create_app import TLG_PATH, TLG_URL, dp, bot, logger
+from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config, scheduler
 from tgbot.handlers.main_handlers import router as tg_router
+from services.scheduler_service import create_task
 
 from web_app.router import router as fastapi_router
 
@@ -20,6 +21,9 @@ async def on_startup():
     logger.info("Bot started")
     logger.info(webhook_info)
     dp.include_router(tg_router)
+    scheduler.remove_all_jobs()
+    await create_task()
+    scheduler.start()
 
 
 async def on_shutdown():
@@ -46,8 +50,8 @@ async def bot_webhook(update: dict):
 
 
 async def main():
-    config = uvicorn.Config(app=app, host="0.0.0.0", port=8003, log_level="info")
-    server = uvicorn.Server(config)
+    app_config = uvicorn.Config(app=app, host="0.0.0.0", port=config.inner_port, log_level="info")
+    server = uvicorn.Server(config=app_config)
     await server.serve()
 
 
