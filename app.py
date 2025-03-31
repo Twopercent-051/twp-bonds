@@ -1,11 +1,13 @@
 import asyncio
 from contextlib import asynccontextmanager
+from locale import currency
 
 from fastapi import FastAPI
 from aiogram.types import Update
 import uvicorn
 
 from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config, scheduler
+from models.sql_dao import MoneyBalanceDAO
 from tgbot.handlers.main_handlers import router as tg_router
 from services.scheduler_service import create_task
 
@@ -24,6 +26,9 @@ async def on_startup():
     scheduler.remove_all_jobs()
     await create_task()
     scheduler.start()
+    balance = await MoneyBalanceDAO.get_one_or_none(currency="RUB")
+    if balance is None:
+        await MoneyBalanceDAO.create_with_return_id(currency="RUB", amount=0)
 
 
 async def on_shutdown():

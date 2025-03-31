@@ -1,7 +1,6 @@
-from datetime import datetime
 from typing import Annotated
 
-from sqlalchemy import MetaData, text
+from sqlalchemy import MetaData
 from sqlalchemy.orm import Mapped, mapped_column, as_declarative
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
