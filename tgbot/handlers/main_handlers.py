@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from config import config
-from models.sql_dao import BondsDAO, MoneyBalanceDAO
+from models.sql_dao import BondsDAO, MoneyBalanceDAO, TransactionsDAO
 from services.moex import MoexAPI
 
 router = Router()
@@ -42,53 +42,45 @@ async def get_bond_handler(message: Message):
         return await message.answer(text=text)
 
     try:
-        # Разделение текста сообщения на ISIN и количество
         parts = message.text.split(" ")
         isin = parts[0]
         amount = int(parts[1])
     except (IndexError, ValueError):
         text = "Неправильный формат сообщения. Используйте: ISIN количество."
         return await message.answer(text=text)
-
-    # Получение данных об облигации
     moex_bond = await MoexAPI.get_one_bond_profile(isin=isin, amount=amount)
     if not moex_bond:
         text = "Облигация не найдена по указанному ISIN."
         return await message.answer(text=text)
-
-    # Приведение данных к Decimal
-    price = Decimal(str(moex_bond.price))  # Цена облигации
-
-    # Получение текущего баланса
-    current_balance = await MoneyBalanceDAO.get_one_or_none()
-    if not current_balance:
-        text = "Ошибка: баланс пользователя не найден."
-        return await message.answer(text=text)
-
-    balance = Decimal(str(current_balance.balance))  # Текущий баланс
-
-    # Проверка, достаточно ли средств
-    if balance < price:
-        text = (
-            f"Баланс не может быть отрицательным\n"
-            f"Balance: {balance.quantize(Decimal('0.01'))}\n"
-            f"Price: {price.quantize(Decimal('0.01'))}"
-        )
-        return await message.answer(text=text)
-
-    # Обновление баланса
-    new_balance = balance - price
-    await MoneyBalanceDAO.update_by_id(
-        item_id=current_balance.id,
-        balance=new_balance.quantize(Decimal("0.01"), rounding=ROUND_DOWN),  # Округляем до копеек
-    )
-
-    # Работа с записями об облигациях
+    # price = Decimal(str(moex_bond.price))  # Цена облигации
+    # # Получение текущего баланса
+    # current_balance = await MoneyBalanceDAO.get_one_or_none()
+    # if not current_balance:
+    #     text = "Ошибка: баланс пользователя не найден."
+    #     return await message.answer(text=text)
+    # balance = Decimal(str(current_balance.balance))  # Текущий баланс
+    # # Проверка, достаточно ли средств
+    # if balance < price:
+    #     text = (
+    #         f"Баланс не может быть отрицательным\n"
+    #         f"Balance: {balance.quantize(Decimal('0.01'))}\n"
+    #         f"Price: {price.quantize(Decimal('0.01'))}"
+    #     )
+    #     return await message.answer(text=text)
+    # # Обновление баланса
+    # new_balance = balance - price
+    # await MoneyBalanceDAO.update_by_id(
+    #     item_id=current_balance.id,
+    #     balance=new_balance.quantize(Decimal("0.01"), rounding=ROUND_DOWN),  # Округляем до копеек
+    # )
+    # # Работа с записями об облигациях
     sql_bond = await BondsDAO.get_one_or_none(isin=isin)
     if sql_bond:
         await BondsDAO.update_by_id(item_id=sql_bond.id, amount=sql_bond.amount + amount)
     else:
-        await BondsDAO.create_with_return_id(isin=isin, amount=amount, nominal=moex_bond.nominal)
-
+        await TransactionsDAO.create_bond(
+            isin=isin, amount=amount, nominal=moex_bond.nominal, price=int(moex_bond.price * 100)
+        )
+        # await BondsDAO.create_with_return_id(isin=isin, amount=amount, nominal=moex_bond.nominal)
     text = "Сохранили"
     await message.answer(text=text)

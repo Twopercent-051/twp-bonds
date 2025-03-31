@@ -25,5 +25,5 @@ class MoneyBalanceDB(BaseDB):
     __tablename__ = "money_balances"
 
     id: Mapped[intpk]
-    balance: Mapped[float] = mapped_column(server_default="0")
+    balance: Mapped[int] = mapped_column(server_default="0")
     currency: Mapped[str_200] = mapped_column(server_default="RUB")

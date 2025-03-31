@@ -118,3 +118,25 @@ class MoneyBalanceDAO(BaseDAO):
             row = result.scalars().one_or_none()
             if row:
                 return MoneyBalanceDTO.model_validate(obj=row, from_attributes=True)
+
+
+class TransactionsDAO:
+    @staticmethod
+    @retry_on_disconnect()
+    async def create_bond(isin: str, amount: int, nominal: int, price: int) -> bool:
+        async with async_session_maker() as session:
+            balance_stmt = (
+                update(MoneyBalanceDB)
+                .values(balance=MoneyBalanceDB.balance - price)
+                .where(MoneyBalanceDB.currency == "RUB")
+                .where(MoneyBalanceDB.balance >= price)
+                .returning(MoneyBalanceDB.balance)
+            )
+            result = await session.execute(balance_stmt)
+            updated_balance = result.scalar_one_or_none()
+            if not updated_balance:
+                return False
+            bond_stmt = insert(BondDB).values(isin=isin, amount=amount, nominal=nominal, price=price)
+            await session.execute(bond_stmt)
+            await session.commit()
+            return True
