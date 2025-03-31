@@ -157,7 +157,7 @@ class TransactionsDAO:
             updated_balance = result.scalar_one_or_none()
             if not updated_balance:
                 return False
-            bond_stmt = update(BondDB).values(amount=amount).filter_by(isin=isin)
+            bond_stmt = update(BondDB).values(amount=amount + BondDB.amount).filter_by(isin=isin)
             await session.execute(bond_stmt)
             await session.commit()
             return True
