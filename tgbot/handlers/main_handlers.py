@@ -40,7 +40,6 @@ async def get_bond_handler(message: Message):
     if message.from_user.id not in config.admin_ids:
         text = "🔧 В данный момент бот недоступен. Обратитесь к администратору."
         return await message.answer(text=text)
-
     try:
         parts = message.text.split(" ")
         isin = parts[0]
@@ -52,36 +51,13 @@ async def get_bond_handler(message: Message):
     if not moex_bond:
         text = "Облигация не найдена по указанному ISIN."
         return await message.answer(text=text)
-    # price = Decimal(str(moex_bond.price))  # Цена облигации
-    # # Получение текущего баланса
-    # current_balance = await MoneyBalanceDAO.get_one_or_none()
-    # if not current_balance:
-    #     text = "Ошибка: баланс пользователя не найден."
-    #     return await message.answer(text=text)
-    # balance = Decimal(str(current_balance.balance))  # Текущий баланс
-    # # Проверка, достаточно ли средств
-    # if balance < price:
-    #     text = (
-    #         f"Баланс не может быть отрицательным\n"
-    #         f"Balance: {balance.quantize(Decimal('0.01'))}\n"
-    #         f"Price: {price.quantize(Decimal('0.01'))}"
-    #     )
-    #     return await message.answer(text=text)
-    # # Обновление баланса
-    # new_balance = balance - price
-    # await MoneyBalanceDAO.update_by_id(
-    #     item_id=current_balance.id,
-    #     balance=new_balance.quantize(Decimal("0.01"), rounding=ROUND_DOWN),  # Округляем до копеек
-    # )
-    # # Работа с записями об облигациях
     sql_bond = await BondsDAO.get_one_or_none(isin=isin)
     if sql_bond:
-        await BondsDAO.update_by_id(item_id=sql_bond.id, amount=sql_bond.amount + amount)
+        result = await TransactionsDAO.update_bond(isin=isin, amount=amount, price=int(moex_bond.price * 100))
     else:
         result = await TransactionsDAO.create_bond(
             isin=isin, amount=amount, nominal=moex_bond.nominal, price=int(moex_bond.price * 100)
         )
-        # await BondsDAO.create_with_return_id(isin=isin, amount=amount, nominal=moex_bond.nominal)
     if not result:
         text = "Баланс не может быть отрицательным"
         await message.answer(text=text)

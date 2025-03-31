@@ -121,6 +121,7 @@ class MoneyBalanceDAO(BaseDAO):
 
 
 class TransactionsDAO:
+
     @staticmethod
     @retry_on_disconnect()
     async def create_bond(isin: str, amount: int, nominal: int, price: int) -> bool:
@@ -137,6 +138,26 @@ class TransactionsDAO:
             if not updated_balance:
                 return False
             bond_stmt = insert(BondDB).values(isin=isin, amount=amount, cur_nominal=nominal)
+            await session.execute(bond_stmt)
+            await session.commit()
+            return True
+
+    @staticmethod
+    @retry_on_disconnect()
+    async def update_bond(isin: str, amount: int, price: int) -> bool:
+        async with async_session_maker() as session:
+            balance_stmt = (
+                update(MoneyBalanceDB)
+                .values(balance=MoneyBalanceDB.balance - price)
+                .where(MoneyBalanceDB.currency == "RUB")
+                .where(MoneyBalanceDB.balance >= price)
+                .returning(MoneyBalanceDB.balance)
+            )
+            result = await session.execute(balance_stmt)
+            updated_balance = result.scalar_one_or_none()
+            if not updated_balance:
+                return False
+            bond_stmt = update(BondDB).values(amount=amount).filter_by(isin=isin)
             await session.execute(bond_stmt)
             await session.commit()
             return True
