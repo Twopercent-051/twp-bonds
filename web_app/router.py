@@ -24,6 +24,6 @@ async def get_bonds(request: Request):
             "total_amount": total_amount,
             "total_price": total_price,
             "total_nominal": total_nominal,
-            "current_balance": round(number=balance.balance, ndigits=2),
+            "current_balance": round(number=balance.balance / 100, ndigits=2),
         },
     )

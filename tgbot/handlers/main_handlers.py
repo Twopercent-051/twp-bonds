@@ -18,7 +18,7 @@ async def start_handler(message: Message):
 @router.message(F.text.startswith("RUB"))
 async def get_balance_handler(message: Message):
     try:
-        value = float(message.text.split(" ")[1])
+        value = int(message.text.split(" ")[1])
     except (IndexError, ValueError):
         text = "Неправильно"
         return await message.answer(text=text)
@@ -27,7 +27,7 @@ async def get_balance_handler(message: Message):
         if current_value.balance + value < 0:
             text = "Баланс не может быть отрицательным"
             return await message.answer(text=text)
-    await MoneyBalanceDAO.update_by_id(item_id=current_value.id, balance=current_value.balance + value)
+    await MoneyBalanceDAO.update_by_id(item_id=current_value.id, balance=current_value.balance + value * 100)
     text = "Сохранили"
     await message.answer(text=text)
 
@@ -78,9 +78,13 @@ async def get_bond_handler(message: Message):
     if sql_bond:
         await BondsDAO.update_by_id(item_id=sql_bond.id, amount=sql_bond.amount + amount)
     else:
-        await TransactionsDAO.create_bond(
+        result = await TransactionsDAO.create_bond(
             isin=isin, amount=amount, nominal=moex_bond.nominal, price=int(moex_bond.price * 100)
         )
         # await BondsDAO.create_with_return_id(isin=isin, amount=amount, nominal=moex_bond.nominal)
+    if not result:
+        text = "Баланс не может быть отрицательным"
+        await message.answer(text=text)
+        return
     text = "Сохранили"
     await message.answer(text=text)
