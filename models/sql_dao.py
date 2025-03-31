@@ -1,9 +1,12 @@
+import asyncio
 from typing import List
 
 from sqlalchemy import insert, update, delete, select
+from sqlalchemy.exc import InterfaceError, OperationalError
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from create_app import database_url
+from config import config
+from create_app import database_url, logger, bot
 from models.schemas import DbBondDTO, MoneyBalanceDTO
 from models.sql_models import BondDB, MoneyBalanceDB
 
@@ -12,10 +15,42 @@ engine = create_async_engine(url=database_url)
 async_session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
+def retry_on_disconnect(max_retries=7, delay=1):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            retries = 0
+            while retries < max_retries:
+                try:
+                    return await func(*args, **kwargs)
+                except (InterfaceError, OperationalError) as e:
+                    retries += 1
+                    error_message = str(e)
+                    short_message = error_message.split(":")[-1].strip()
+                    error_text = f"Connection error: {short_message}. Retry {retries}/{max_retries}..."
+                    logger.warning(msg=error_text)
+                    if retries < max_retries:
+                        await asyncio.sleep(delay)
+                    else:
+                        await bot.send_message(chat_id=config.admin_ids[0], text=error_text)
+
+        return wrapper
+
+    return decorator
+
+
 class BaseDAO:
     model = None
 
     @classmethod
+    @retry_on_disconnect()
+    async def create_many(cls, data: List[dict]):
+        async with async_session_maker() as session:
+            stmt = insert(cls.model).values(data)
+            await session.execute(stmt)
+            await session.commit()
+
+    @classmethod
+    @retry_on_disconnect()
     async def create_with_return_id(cls, **data) -> int:
         async with async_session_maker() as session:
             stmt = insert(cls.model).values(**data).returning(cls.model.id)
@@ -25,13 +60,7 @@ class BaseDAO:
             return created_id
 
     @classmethod
-    async def create_many(cls, data: List[dict]):
-        async with async_session_maker() as session:
-            stmt = insert(cls.model).values(data)
-            await session.execute(stmt)
-            await session.commit()
-
-    @classmethod
+    @retry_on_disconnect()
     async def update_by_id(cls, item_id: int, **data):
         async with async_session_maker() as session:
             stmt = update(cls.model).values(**data).filter_by(id=item_id)
@@ -39,6 +68,7 @@ class BaseDAO:
             await session.commit()
 
     @classmethod
+    @retry_on_disconnect()
     async def delete(cls, **data):
         async with async_session_maker() as session:
             stmt = delete(cls.model).filter_by(**data)
@@ -46,6 +76,7 @@ class BaseDAO:
             await session.commit()
 
     @classmethod
+    @retry_on_disconnect()
     async def delete_many_by_ids(cls, ids: list[int]):
         async with async_session_maker() as session:
             stmt = delete(cls.model).where(cls.model.id.in_(ids))
@@ -57,6 +88,7 @@ class BondsDAO(BaseDAO):
     model = BondDB
 
     @classmethod
+    @retry_on_disconnect()
     async def get_one_or_none(cls, **filter_by) -> DbBondDTO | None:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by).limit(1)
@@ -66,6 +98,7 @@ class BondsDAO(BaseDAO):
                 return DbBondDTO.model_validate(obj=row, from_attributes=True)
 
     @classmethod
+    @retry_on_disconnect()
     async def get_many(cls, **filter_by) -> list[DbBondDTO]:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by)
@@ -77,6 +110,7 @@ class MoneyBalanceDAO(BaseDAO):
     model = MoneyBalanceDB
 
     @classmethod
+    @retry_on_disconnect()
     async def get_one_or_none(cls, currency: str = "RUB") -> MoneyBalanceDTO | None:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(currency=currency).limit(1)
