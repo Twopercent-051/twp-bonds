@@ -4,6 +4,7 @@ from config import config
 from create_app import bot, logger, scheduler
 from models.schemas import MoexBondDTO
 from models.sql_dao import MoneyBalanceDAO, BondsDAO
+from services.moex import MoexAPI
 
 
 async def __send_message(text: str):
@@ -50,7 +51,8 @@ async def __bond_redemption(bond: MoexBondDTO) -> bool:
 
 
 async def __scheduler_dispatcher():
-    bonds = await BondsDAO.get_many()
+    sql_bonds = await BondsDAO.get_many()
+    bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
     for bond in bonds:
         full_redemption = await __bond_redemption(bond=bond)
         if full_redemption:

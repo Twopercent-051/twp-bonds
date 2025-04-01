@@ -32,9 +32,6 @@ async def get_balance_handler(message: Message):
     await message.answer(text=text)
 
 
-from decimal import Decimal, ROUND_DOWN
-
-
 @router.message(F.text)
 async def get_bond_handler(message: Message):
     if message.from_user.id not in config.admin_ids:
