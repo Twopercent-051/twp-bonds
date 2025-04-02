@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     inner_port: int
     outer_port: int
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 config = Settings()  # type: ignore

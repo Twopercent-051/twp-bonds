@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from config import config
@@ -18,7 +19,7 @@ async def __send_message(text: str):
 async def __coupon_payment(bond: MoexBondDTO):
     if bond.coupon_date != datetime.today():
         return
-    text = f"💡 Выплачено <i>{bond.coupon_price}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
+    text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
     current_balance = await MoneyBalanceDAO.get_one_or_none()
     await MoneyBalanceDAO.update_by_id(item_id=current_balance.id, balance=current_balance.balance + bond.coupon_price)
@@ -28,7 +29,9 @@ async def __part_redemption(bond: MoexBondDTO):
     diff = bond.nominal - bond.cur_nominal
     if diff == 0:
         return
-    text = f"💡 Частичное погашение <i>{diff * bond.amount}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
+    text = (
+        f"💡 Частичное погашение <i>{diff * bond.amount}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
+    )
     await __send_message(text=text)
     current_balance = await MoneyBalanceDAO.get_one_or_none()
     await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal)
@@ -38,7 +41,7 @@ async def __part_redemption(bond: MoexBondDTO):
 async def __bond_redemption(bond: MoexBondDTO) -> bool:
     if bond.redemption_date != datetime.today():
         return False
-    text = f"💡 Полное погашение <i>{bond.price}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
+    text = f"💡 Полное погашение <i>{bond.price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
     text = f"💡 Выплачено <i>{bond.coupon_price}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
     await __send_message(text=text)
@@ -69,3 +72,7 @@ async def create_task():
         minute=0,
         misfire_grace_time=None,
     )
+
+
+if __name__ == "__main__":
+    asyncio.run(__scheduler_dispatcher())
