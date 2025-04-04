@@ -15,7 +15,7 @@ class BaseDB:
 
 
 class BondDB(BaseDB):
-    __tablename__ = "tickets"
+    __tablename__ = "bonds"
 
     id: Mapped[intpk]
     isin: Mapped[str_200]
