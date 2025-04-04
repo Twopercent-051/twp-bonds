@@ -18,7 +18,7 @@ async def get_bonds(request: Request):
     balances = await MoneyBalanceDAO.get_many()
     balance = sum(balance.amount for balance in balances)
     total_deposits = sum(balance.amount for balance in balances if balance.description == "deposit")
-    difference = balance + total_price - total_deposits
+    difference = balance + total_price * 100 - total_deposits
     return templates.TemplateResponse(
         "bonds_table.html",
         {
