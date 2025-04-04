@@ -26,10 +26,6 @@ async def on_startup():
     scheduler.remove_all_jobs()
     await create_task()
     scheduler.start()
-    balance = await MoneyBalanceDAO.get_one_or_none(currency="RUB")
-    if not balance:
-        await MoneyBalanceDAO.create_with_return_id(currency="RUB")
-        logger.info("Balance created")
 
 
 async def on_shutdown():
