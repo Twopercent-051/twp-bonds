@@ -67,7 +67,13 @@
 <body>
     <h1>Bond Table</h1>
     <!-- Отображение текущего баланса -->
-    <div class="balance-container">Текущий баланс: {{ current_balance }} ₽</div>
+    <div class="balance-container">
+        Текущий баланс: {{ current_balance }} ₽
+        <span style="color: {{ 'green' if difference >= 0 else 'red' }};">
+            ({{ '+' if difference > 0 else '' }}{{ difference }} ₽)
+        </span>
+    </div>
+
     <table>
         <thead>
             <tr>

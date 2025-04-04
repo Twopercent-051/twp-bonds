@@ -18,16 +18,16 @@ async def start_handler(message: Message):
 @router.message(F.text.startswith("RUB"))
 async def get_balance_handler(message: Message):
     try:
-        value = int(message.text.split(" ")[1])
+        value = int(message.text.split(" ")[1]) * 100
     except (IndexError, ValueError):
         text = "Неправильно"
         return await message.answer(text=text)
-    current_value = await MoneyBalanceDAO.get_one_or_none()
+    current_value = await MoneyBalanceDAO.get_total()
     if value < 0:
-        if current_value.balance + value < 0:
+        if current_value + value < 0:
             text = "Баланс не может быть отрицательным"
             return await message.answer(text=text)
-    await MoneyBalanceDAO.update_by_id(item_id=current_value.id, balance=current_value.balance + value * 100)
+    await MoneyBalanceDAO.create_with_return_id(count=current_value + value, description="deposit")
     text = "Сохранили"
     await message.answer(text=text)
 

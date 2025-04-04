@@ -21,10 +21,7 @@ async def __coupon_payment(bond: MoexBondDTO):
         return
     text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
-    current_balance = await MoneyBalanceDAO.get_one_or_none()
-    await MoneyBalanceDAO.update_by_id(
-        item_id=current_balance.id, balance=current_balance.balance + int(bond.coupon_price * 100)
-    )
+    await MoneyBalanceDAO.create_with_return_id(count=int(bond.coupon_price * 100), description="coupon payment")
 
 
 async def __part_redemption(bond: MoexBondDTO):
@@ -35,9 +32,10 @@ async def __part_redemption(bond: MoexBondDTO):
         f"💡 Частичное погашение <i>{diff * bond.amount}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     )
     await __send_message(text=text)
-    current_balance = await MoneyBalanceDAO.get_one_or_none()
-    await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal)
-    await MoneyBalanceDAO.update_by_id(item_id=current_balance.id, balance=current_balance.balance + diff * bond.amount)
+    await MoneyBalanceDAO.create_with_return_id(count=int(diff * bond.amount * 100), description="part redemption")
+    # current_balance = await MoneyBalanceDAO.get_one_or_none()
+    # await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal)
+    # await MoneyBalanceDAO.update_by_id(item_id=current_balance.id, balance=current_balance.balance + diff * bond.amount)
 
 
 async def __bond_redemption(bond: MoexBondDTO) -> bool:
@@ -47,11 +45,14 @@ async def __bond_redemption(bond: MoexBondDTO) -> bool:
     await __send_message(text=text)
     text = f"💡 Выплачено <i>{bond.coupon_price}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
     await __send_message(text=text)
-    current_balance = await MoneyBalanceDAO.get_one_or_none()
-    await BondsDAO.delete(id=bond.id)
-    await MoneyBalanceDAO.update_by_id(
-        item_id=current_balance.id, balance=current_balance.balance + bond.price + int(bond.coupon_price * 100)
+    await MoneyBalanceDAO.create_with_return_id(
+        count=bond.price + int(bond.coupon_price * 100), description="bond redemption"
     )
+    # current_balance = await MoneyBalanceDAO.get_one_or_none()
+    # await BondsDAO.delete(id=bond.id)
+    # await MoneyBalanceDAO.update_by_id(
+    #     item_id=current_balance.id, balance=current_balance.balance + bond.price + int(bond.coupon_price * 100)
+    # )
     return True
 
 

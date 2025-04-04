@@ -1,7 +1,7 @@
 import asyncio
 from typing import List
 
-from sqlalchemy import insert, update, delete, select
+from sqlalchemy import insert, update, delete, select, func
 from sqlalchemy.exc import InterfaceError, OperationalError
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
@@ -119,6 +119,22 @@ class MoneyBalanceDAO(BaseDAO):
             if row:
                 return MoneyBalanceDTO.model_validate(obj=row, from_attributes=True)
 
+    @classmethod
+    @retry_on_disconnect()
+    async def get_many(cls, **filter_by) -> list[MoneyBalanceDTO]:
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(**filter_by)
+            data = await session.execute(query)
+            return [MoneyBalanceDTO.model_validate(obj=row, from_attributes=True) for row in data.scalars().all()]
+
+    @classmethod
+    @retry_on_disconnect()
+    async def get_total(cls, **filter_by) -> int:
+        async with async_session_maker() as session:
+            query = select(func.sum(cls.model.amount)).filter_by(**filter_by)
+            result = await session.execute(query)
+            return result.scalar() or 0
+
 
 class TransactionsDAO:
 
@@ -126,17 +142,13 @@ class TransactionsDAO:
     @retry_on_disconnect()
     async def create_bond(isin: str, amount: int, nominal: int, price: int) -> bool:
         async with async_session_maker() as session:
-            balance_stmt = (
-                update(MoneyBalanceDB)
-                .values(balance=MoneyBalanceDB.balance - price)
-                .where(MoneyBalanceDB.currency == "RUB")
-                .where(MoneyBalanceDB.balance >= price)
-                .returning(MoneyBalanceDB.balance)
-            )
-            result = await session.execute(balance_stmt)
-            updated_balance = result.scalar_one_or_none()
-            if not updated_balance:
+            balance_query = select(func.sum(MoneyBalanceDB.amount)).where(MoneyBalanceDB.currency == "RUB")
+            result = await session.execute(balance_query)
+            total_balance = result.scalar() or 0
+            if total_balance < price:
                 return False
+            balance_stmt = insert(MoneyBalanceDB).values(amount=-price, description="buy bond")
+            await session.execute(balance_stmt)
             bond_stmt = insert(BondDB).values(isin=isin, amount=amount, cur_nominal=nominal)
             await session.execute(bond_stmt)
             await session.commit()
@@ -145,18 +157,15 @@ class TransactionsDAO:
     @staticmethod
     @retry_on_disconnect()
     async def update_bond(isin: str, amount: int, price: int) -> bool:
+
         async with async_session_maker() as session:
-            balance_stmt = (
-                update(MoneyBalanceDB)
-                .values(balance=MoneyBalanceDB.balance - price)
-                .where(MoneyBalanceDB.currency == "RUB")
-                .where(MoneyBalanceDB.balance >= price)
-                .returning(MoneyBalanceDB.balance)
-            )
-            result = await session.execute(balance_stmt)
-            updated_balance = result.scalar_one_or_none()
-            if not updated_balance:
+            balance_query = select(func.sum(MoneyBalanceDB.amount)).where(MoneyBalanceDB.currency == "RUB")
+            result = await session.execute(balance_query)
+            total_balance = result.scalar() or 0
+            if total_balance < price:
                 return False
+            balance_stmt = insert(MoneyBalanceDB).values(amount=-price, description="buy bond")
+            await session.execute(balance_stmt)
             bond_stmt = update(BondDB).values(amount=amount + BondDB.amount).filter_by(isin=isin)
             await session.execute(bond_stmt)
             await session.commit()

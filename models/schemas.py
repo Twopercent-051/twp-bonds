@@ -21,5 +21,7 @@ class MoexBondDTO(DbBondDTO):
 
 class MoneyBalanceDTO(BaseModel):
     id: int
-    balance: float
+    amount: int
     currency: str
+    created_at: datetime
+    description: str
