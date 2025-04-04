@@ -27,7 +27,7 @@ async def get_balance_handler(message: Message):
         if current_value + value < 0:
             text = "Баланс не может быть отрицательным"
             return await message.answer(text=text)
-    await MoneyBalanceDAO.create_with_return_id(count=current_value + value, description="deposit")
+    await MoneyBalanceDAO.create_with_return_id(amount=value, description="deposit")
     text = "Сохранили"
     await message.answer(text=text)
 
