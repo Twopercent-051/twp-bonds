@@ -1,13 +1,11 @@
 import asyncio
 from contextlib import asynccontextmanager
-from locale import currency
 
 from fastapi import FastAPI
 from aiogram.types import Update
 import uvicorn
 
 from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config, scheduler
-from models.sql_dao import MoneyBalanceDAO
 from tgbot.handlers.main_handlers import router as tg_router
 from services.scheduler_service import create_task
 
@@ -45,7 +43,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(fastapi_router)
 
 
-@app.post(f"/bot{TLG_PATH}", include_in_schema=False)
+@app.post(path=f"/bot{TLG_PATH}", include_in_schema=False)
 async def bot_webhook(update: dict):
     telegram_update = Update(**update)
     await dp.feed_update(bot=bot, update=telegram_update)
