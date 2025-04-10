@@ -5,6 +5,7 @@ from typing import Literal
 import aiohttp
 from bs4 import BeautifulSoup
 
+from config import config
 from models.schemas import DbBondDTO, MoexBondDTO
 
 
@@ -14,7 +15,8 @@ class MoexAPI:
     async def __get_request(section: Literal["TQOB", "TQCB"]) -> str:
         url = f"https://iss.moex.com/iss/engines/stock/markets/bonds/boards/{section}/securities.xml"
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url) as resp:
+            async with session.get(url=url, proxy=config.rus_proxy) as resp:
+                print(resp.status)
                 return await resp.text()
 
     @staticmethod
