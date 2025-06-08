@@ -33,9 +33,6 @@ async def __part_redemption(bond: MoexBondDTO):
     )
     await __send_message(text=text)
     await MoneyBalanceDAO.create_with_return_id(count=int(diff * bond.amount * 100), description="part redemption")
-    # current_balance = await MoneyBalanceDAO.get_one_or_none()
-    # await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal)
-    # await MoneyBalanceDAO.update_by_id(item_id=current_balance.id, balance=current_balance.balance + diff * bond.amount)
 
 
 async def __bond_redemption(bond: MoexBondDTO) -> bool:
@@ -48,11 +45,6 @@ async def __bond_redemption(bond: MoexBondDTO) -> bool:
     await MoneyBalanceDAO.create_with_return_id(
         count=bond.price + int(bond.coupon_price * 100), description="bond redemption"
     )
-    # current_balance = await MoneyBalanceDAO.get_one_or_none()
-    # await BondsDAO.delete(id=bond.id)
-    # await MoneyBalanceDAO.update_by_id(
-    #     item_id=current_balance.id, balance=current_balance.balance + bond.price + int(bond.coupon_price * 100)
-    # )
     return True
 
 
@@ -61,9 +53,9 @@ async def __scheduler_dispatcher():
     bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
     for bond in bonds:
         full_redemption = await __bond_redemption(bond=bond)
+        await __coupon_payment(bond=bond)
         if full_redemption:
             continue
-        await __coupon_payment(bond=bond)
         await __part_redemption(bond=bond)
 
 

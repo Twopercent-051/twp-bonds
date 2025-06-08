@@ -1,0 +1,38 @@
+name: Workflow for main branch
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  docker-job:
+    runs-on: artashes # self-hosted runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch ENV_FILE from Vault
+        id: vault
+        uses: hashicorp/vault-action@v2
+        with:
+          url: https://vault.twopercent051.site
+          method: jwt
+          role: github-actions
+          jwtGithubAudience: https://github.com
+          secrets: |
+            kv/data/${{ vars.KV_TITLE }} ENV_FILE | ENV_FILE
+
+      - name: Create .env file
+        run: echo "$ENV_FILE" > .env
+
+      - name: Run Docker Compose
+        run: docker compose up -d --build
+
+      - name: List all Docker containers
+        run: docker ps -a

@@ -20,7 +20,7 @@ class MoexAPI:
                 return await resp.text()
 
     @staticmethod
-    async def __get_one_bond_data(moex_data_list: list[str], sql_bond: DbBondDTO) -> MoexBondDTO:
+    async def __get_one_bond_data(moex_data_list: list[str], sql_bond: DbBondDTO) -> MoexBondDTO | None:
         for moex_data in moex_data_list:
             soup = BeautifulSoup(moex_data, features="xml")
             rows = soup.find(name="data", attrs={"id": "securities"}).find_all("row")
@@ -46,6 +46,7 @@ class MoexAPI:
                         redemption_date=redemption_date,
                         cur_nominal=sql_bond.cur_nominal,
                     )
+        return None
 
     @classmethod
     async def get_bonds_profiles(cls, sql_bonds: list[DbBondDTO]) -> list[MoexBondDTO]:
