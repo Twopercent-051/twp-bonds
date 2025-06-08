@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   docker-job:
-    runs-on: artashes # self-hosted runner
+    runs-on: adminvps # self-hosted runner
 
     steps:
       - name: Checkout repository
