@@ -21,7 +21,7 @@ async def __coupon_payment(bond: MoexBondDTO):
         return
     text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
-    await MoneyBalanceDAO.create_with_return_id(count=int(bond.coupon_price * 100), description="coupon payment")
+    await MoneyBalanceDAO.create_with_return_id(amount=int(bond.coupon_price * 100), description="coupon payment")
 
 
 async def __part_redemption(bond: MoexBondDTO):
@@ -32,7 +32,8 @@ async def __part_redemption(bond: MoexBondDTO):
         f"💡 Частичное погашение <i>{diff * bond.amount}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     )
     await __send_message(text=text)
-    await MoneyBalanceDAO.create_with_return_id(count=int(diff * bond.amount * 100), description="part redemption")
+    await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal)
+    await MoneyBalanceDAO.create_with_return_id(amount=int(diff * bond.amount * 100), description="part redemption")
 
 
 async def __bond_redemption(bond: MoexBondDTO) -> bool:
@@ -43,7 +44,7 @@ async def __bond_redemption(bond: MoexBondDTO) -> bool:
     text = f"💡 Выплачено <i>{bond.coupon_price}₽ по облигации <i>{bond.title}</i> ({bond.amount}шт)</i>"
     await __send_message(text=text)
     await MoneyBalanceDAO.create_with_return_id(
-        count=bond.price + int(bond.coupon_price * 100), description="bond redemption"
+        amount=bond.price + int(bond.coupon_price * 100), description="bond redemption"
     )
     return True
 

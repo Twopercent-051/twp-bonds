@@ -50,7 +50,9 @@ async def get_bond_handler(message: Message):
         return await message.answer(text=text)
     sql_bond = await BondsDAO.get_one_or_none(isin=isin)
     if sql_bond:
-        result = await TransactionsDAO.update_bond(isin=isin, amount=amount, price=int(moex_bond.price * 100))
+        result = await TransactionsDAO.update_bond(
+            isin=isin, amount=amount, price=int(moex_bond.price * 100), nominal=moex_bond.nominal
+        )
     else:
         result = await TransactionsDAO.create_bond(
             isin=isin, amount=amount, nominal=moex_bond.nominal, price=int(moex_bond.price * 100)
