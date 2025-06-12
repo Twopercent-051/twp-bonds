@@ -165,7 +165,11 @@ class TransactionsDAO:
                 return False
             balance_stmt = insert(MoneyBalanceDB).values(amount=-price, description="buy bond")
             await session.execute(balance_stmt)
-            bond_stmt = update(BondDB).values(amount=amount + BondDB.amount, cur_nominal=nominal).filter_by(isin=isin)
+            bond_stmt = (
+                update(BondDB)
+                .values(amount=amount + BondDB.amount, cur_nominal=nominal + BondDB.cur_nominal)
+                .filter_by(isin=isin)
+            )
             await session.execute(bond_stmt)
             await session.commit()
             return True

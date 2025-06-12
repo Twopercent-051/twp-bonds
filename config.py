@@ -1,4 +1,10 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+env_file = os.path.join(PROJECT_ROOT, ".env")
+print(env_file)
 
 
 class Settings(BaseSettings):
@@ -17,7 +23,7 @@ class Settings(BaseSettings):
 
     rus_proxy: str | None = None
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8", extra="ignore")
 
 
 config = Settings()  # type: ignore

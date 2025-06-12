@@ -74,4 +74,4 @@ class MoexAPI:
 
 
 if __name__ == "__main__":
-    asyncio.run(MoexAPI.get_one_bond_profile(isin="RU000A1033B9", amount=1))
+    asyncio.run(MoexAPI.get_one_bond_profile(isin="RU000A1033B9", amount=2))

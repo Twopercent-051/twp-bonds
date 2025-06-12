@@ -30,6 +30,7 @@ async def get_balance_handler(message: Message):
     await MoneyBalanceDAO.create_with_return_id(amount=value, description="deposit")
     text = "Сохранили"
     await message.answer(text=text)
+    return None
 
 
 @router.message(F.text)
@@ -60,6 +61,7 @@ async def get_bond_handler(message: Message):
     if not result:
         text = "Баланс не может быть отрицательным"
         await message.answer(text=text)
-        return
+        return None
     text = "Сохранили"
     await message.answer(text=text)
+    return None
