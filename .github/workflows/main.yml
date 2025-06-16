@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   docker-job:
-    runs-on: adminvps # self-hosted runner
+    runs-on: test_runner # self-hosted runner
 
     steps:
       - name: Checkout repository
