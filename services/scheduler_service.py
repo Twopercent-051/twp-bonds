@@ -17,7 +17,7 @@ async def __send_message(text: str):
 
 
 async def __coupon_payment(bond: MoexBondDTO):
-    if bond.coupon_date != datetime.today():
+    if bond.coupon_date.date() != datetime.today():
         return
     text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
@@ -37,7 +37,7 @@ async def __part_redemption(bond: MoexBondDTO):
 
 
 async def __bond_redemption(bond: MoexBondDTO) -> bool:
-    if bond.redemption_date != datetime.today():
+    if bond.redemption_date.date() != datetime.today():
         return False
     text = f"💡 Полное погашение <i>{bond.price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
     await __send_message(text=text)
@@ -64,8 +64,8 @@ async def create_task():
     scheduler.add_job(
         func=__scheduler_dispatcher,
         trigger="cron",
-        hour=5,
-        minute=0,
+        hour=6,
+        minute=46,
         misfire_grace_time=None,
     )
 
