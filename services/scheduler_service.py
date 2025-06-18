@@ -69,7 +69,7 @@ async def create_task():
         func=__scheduler_dispatcher,
         trigger="cron",
         hour=6,
-        minute=52,
+        minute=54,
         misfire_grace_time=None,
     )
 
