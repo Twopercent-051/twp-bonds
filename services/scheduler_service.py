@@ -17,6 +17,10 @@ async def __send_message(text: str):
 
 
 async def __coupon_payment(bond: MoexBondDTO):
+    logger.info(f"Coupon payment for bond {bond.title}")
+    logger.info(f"Coupon payment for bond {bond.coupon_date.date()}")
+    logger.info(f"Coupon payment for bond {datetime.today()}")
+
     if bond.coupon_date.date() != datetime.today():
         return
     text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
