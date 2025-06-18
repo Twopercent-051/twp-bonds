@@ -12,12 +12,10 @@ permissions:
 jobs:
   docker-job:
     runs-on: test_runner # self-hosted runner
+    container:
+      image: node:20
 
     steps:
-      - name: Установка Node.js
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-          apt-get install -y nodejs
 
       - name: Checkout repository
         uses: actions/checkout@v4
