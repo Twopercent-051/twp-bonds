@@ -20,16 +20,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch ENV_FILE from Vault
-        id: vault
-        uses: hashicorp/vault-action@v2
-        with:
-          url: https://vault.twopercent051.site
-          method: jwt
-          role: github-actions
-          jwtGithubAudience: https://github.com
-          secrets: |
-            kv/data/${{ vars.KV_TITLE }} ENV_FILE | ENV_FILE
+#      - name: Fetch ENV_FILE from Vault
+#        id: vault
+#        uses: hashicorp/vault-action@v2
+#        with:
+#          url: https://vault.twopercent051.site
+#          method: jwt
+#          role: github-actions
+#          jwtGithubAudience: https://github.com
+#          secrets: |
+#            kv/data/${{ vars.KV_TITLE }} ENV_FILE | ENV_FILE
 
       - name: Create .env file
         run: echo "$ENV_FILE" > .env
