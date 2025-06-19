@@ -7,6 +7,8 @@ from models.schemas import MoexBondDTO
 from models.sql_dao import MoneyBalanceDAO, BondsDAO
 from services.moex import MoexAPI
 
+# class SchedulerService:
+
 
 async def __send_message(text: str):
     for chat in config.admin_ids:

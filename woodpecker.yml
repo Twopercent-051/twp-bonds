@@ -1,0 +1,9 @@
+pipeline:
+  deploy:
+    image: docker:latest
+    commands:
+      - echo "$ENV_FILE" > .env
+      - docker-compose -f docker-compose.yml up -d --build
+      - docker ps -a
+    when:
+      branch: main
