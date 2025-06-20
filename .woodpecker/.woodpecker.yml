@@ -4,7 +4,7 @@ when:
 
 steps:
   - name: deploy
-    image: docker:latest
+    image: docker/compose:latest
     commands:
       - echo "$ENV_FILE"
       - echo "$ENV_FILE" > .env
