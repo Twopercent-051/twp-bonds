@@ -13,3 +13,5 @@ steps:
     environment:
       ENV_FILE:
         from_secret: ENV_FILE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
