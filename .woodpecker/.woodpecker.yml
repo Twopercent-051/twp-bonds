@@ -10,3 +10,6 @@ steps:
       - echo "$ENV_FILE" > .env
       - docker-compose -f docker-compose.yml up -d --build
       - docker ps -a
+    environment:
+      ENV_FILE:
+        from_secret: ENV_FILE
