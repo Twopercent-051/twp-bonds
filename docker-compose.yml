@@ -25,4 +25,4 @@ services:
       - ".env"
 
 volumes:
-  - redis_data:
+  redis_data:
