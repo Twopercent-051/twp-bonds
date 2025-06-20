@@ -23,3 +23,6 @@ services:
        - "${OUTER_PORT}:${INNER_PORT}"
     environment:
       - ".env"
+
+volumes:
+  - redis_data:
