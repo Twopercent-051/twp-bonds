@@ -8,7 +8,7 @@ steps:
     commands:
       - echo "$ENV_FILE"
       - echo "$ENV_FILE" > .env
-      - docker-compose -f docker-compose.yml up -d --build
+      - docker compose -f docker-compose.yml up -d --build
       - docker ps -a
     environment:
       ENV_FILE:
