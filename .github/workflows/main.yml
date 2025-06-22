@@ -27,7 +27,7 @@ jobs:
           role: github-actions
           jwtGithubAudience: https://github.com
           secrets: |
-            kv/data/${{ vars.KV_TITLE }} ENV_FILE | ENV_FILE
+            kv/data/twp MY_BONDS | ENV_FILE
 
       - name: Create .env file
         run: echo "$ENV_FILE" > .env
