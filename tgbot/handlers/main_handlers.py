@@ -4,6 +4,7 @@ from aiogram.types import Message
 
 from config import config
 from models.sql_dao import BondsDAO, MoneyBalanceDAO, TransactionsDAO
+from services.dohod import BuyRecommendation
 from services.moex import MoexAPI
 
 router = Router()
@@ -13,6 +14,24 @@ router = Router()
 async def start_handler(message: Message):
     text = "Введи ISIN и количество через пробел"
     await message.answer(text=text)
+
+
+@router.message(Command("recommendations"))
+async def get_recommendations_handler(message: Message):
+    text = "Список рекомендаций:\n"
+    sql_bonds = await BondsDAO.get_many()
+    bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
+    service = await BuyRecommendation.create(bonds=bonds)
+    balances = await MoneyBalanceDAO.get_many()
+    balance = sum(balance.amount for balance in balances)
+    result = service.get(budget=balance)
+    if len(result) == 0:
+        await message.answer(text="Нет рекомендаций")
+        return None
+    for isin, amount in result.items():
+        text += f"<code>{isin}</code> - {amount} шт.\n"
+    await message.answer(text=text)
+    return None
 
 
 @router.message(F.text.startswith("RUB"))
