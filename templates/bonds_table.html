@@ -96,9 +96,9 @@
                 <td>{{ bond.title }}</td>
                 <td>{{ bond.amount }}</td>
                 <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
-                <td>{{ bond.coupon_price }} ₽</td>
-                <td>{{ bond.nominal }} ₽</td>
-                <td>{{ bond.price }} ₽</td>
+                <td>{{ bond.coupon_price / 100 }} ₽</td>
+                <td>{{ bond.nominal / 100 }} ₽</td>
+                <td>{{ bond.price / 100 }} ₽</td>
                 <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
             </tr>
             {% endfor %}
