@@ -13,8 +13,8 @@ async def get_bonds(request: Request):
     sql_bonds = await BondsDAO.get_many()
     bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
     total_amount = sum(bond.amount for bond in bonds)
-    total_nominal = sum(bond.nominal for bond in bonds)
-    total_price = round(number=sum(bond.price for bond in bonds), ndigits=2)
+    total_nominal = sum(bond.nominal for bond in bonds) / 100
+    total_price = round(number=sum(bond.price for bond in bonds) / 100, ndigits=2)
     balances = await MoneyBalanceDAO.get_many()
     balance = sum(balance.amount for balance in balances)
     total_deposits = sum(balance.amount for balance in balances if balance.description == "deposit")

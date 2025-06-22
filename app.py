@@ -7,7 +7,7 @@ import uvicorn
 
 from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config, scheduler
 from tgbot.handlers.main_handlers import router as tg_router
-from services.scheduler_service import create_task
+from services.scheduler_service import SchedulerService
 
 from web_app.router import router as fastapi_router
 
@@ -21,9 +21,7 @@ async def on_startup():
     logger.info("Bot started")
     logger.info(webhook_info)
     dp.include_router(tg_router)
-    scheduler.remove_all_jobs()
-    await create_task()
-    scheduler.start()
+    await SchedulerService.start()
 
 
 async def on_shutdown():

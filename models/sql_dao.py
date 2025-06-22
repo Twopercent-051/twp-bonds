@@ -140,7 +140,7 @@ class TransactionsDAO:
 
     @staticmethod
     @retry_on_disconnect()
-    async def create_bond(isin: str, amount: int, nominal: int, price: int) -> bool:
+    async def create_bond(isin: str, amount: int, nominal: int, price: int, coupon: int) -> bool:
         async with async_session_maker() as session:
             balance_query = select(func.sum(MoneyBalanceDB.amount)).where(MoneyBalanceDB.currency == "RUB")
             result = await session.execute(balance_query)
@@ -149,14 +149,14 @@ class TransactionsDAO:
                 return False
             balance_stmt = insert(MoneyBalanceDB).values(amount=-price, description="buy bond")
             await session.execute(balance_stmt)
-            bond_stmt = insert(BondDB).values(isin=isin, amount=amount, cur_nominal=nominal)
+            bond_stmt = insert(BondDB).values(isin=isin, amount=amount, cur_nominal=nominal, cur_coupon=coupon)
             await session.execute(bond_stmt)
             await session.commit()
             return True
 
     @staticmethod
     @retry_on_disconnect()
-    async def update_bond(isin: str, amount: int, price: int, nominal: int) -> bool:
+    async def update_bond(isin: str, amount: int, price: int, nominal: int, coupon: int) -> bool:
         async with async_session_maker() as session:
             balance_query = select(func.sum(MoneyBalanceDB.amount)).where(MoneyBalanceDB.currency == "RUB")
             result = await session.execute(balance_query)
@@ -167,7 +167,11 @@ class TransactionsDAO:
             await session.execute(balance_stmt)
             bond_stmt = (
                 update(BondDB)
-                .values(amount=amount + BondDB.amount, cur_nominal=nominal + BondDB.cur_nominal)
+                .values(
+                    amount=amount + BondDB.amount,
+                    cur_nominal=nominal + BondDB.cur_nominal,
+                    cur_coupon=BondDB.cur_coupon + coupon,
+                )
                 .filter_by(isin=isin)
             )
             await session.execute(bond_stmt)

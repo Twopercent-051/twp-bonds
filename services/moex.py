@@ -29,21 +29,20 @@ class MoexAPI:
                     redemption_date = row["MATDATE"] if row["BUYBACKDATE"] == "0000-00-00" else row["BUYBACKDATE"]
                     redemption_date = datetime.strptime(redemption_date, "%Y-%m-%d").date()
                     coupon_date = datetime.strptime(row["NEXTCOUPON"], "%Y-%m-%d").date()
-                    price = round(
-                        float(row["PREVWAPRICE"]) * int(row["FACEVALUE"]) * sql_bond.amount / 100,
-                        2,
-                    )
-                    nkd = round(float(row["ACCRUEDINT"]) * sql_bond.amount, 2)
+                    nominal = int(row["FACEVALUE"]) * sql_bond.amount * 100
+                    price = int(float(row["PREVWAPRICE"]) * nominal * 0.01)
+                    nkd = int(float(row["ACCRUEDINT"]) * sql_bond.amount * 100)
                     return MoexBondDTO(
                         id=sql_bond.id,
                         amount=sql_bond.amount,
                         title=row["SECNAME"],
                         isin=sql_bond.isin,
                         coupon_date=coupon_date,
-                        coupon_price=round(float(row["COUPONVALUE"]) * sql_bond.amount, 2),
-                        nominal=int(row["FACEVALUE"]) * sql_bond.amount,
-                        price=round(price + nkd, 2),
+                        coupon_price=int(float(row["COUPONVALUE"]) * sql_bond.amount * 100),
+                        nominal=nominal,
+                        price=price + nkd,
                         redemption_date=redemption_date,
+                        cur_coupon=sql_bond.cur_coupon,
                         cur_nominal=sql_bond.cur_nominal,
                     )
         return None
@@ -64,12 +63,11 @@ class MoexAPI:
     async def get_one_bond_profile(cls, isin: str, amount: int) -> MoexBondDTO | None:
         ofz_moex_data = await cls.__get_request(section="TQOB")
         other_moex_data = await cls.__get_request(section="TQCB")
-        fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0, cur_nominal=1000)
+        fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0, cur_nominal=1000, cur_coupon=0)
         bond_data = await cls.__get_one_bond_data(
             moex_data_list=[other_moex_data, ofz_moex_data],
             sql_bond=fake_sql_bond,
         )
-        print(bond_data)
         return bond_data
 
 

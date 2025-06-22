@@ -5,6 +5,7 @@ when:
 steps:
   - name: deploy
     image: docker:latest
+
     commands:
       - echo "$ENV_FILE"
       - echo "$ENV_FILE" > .env

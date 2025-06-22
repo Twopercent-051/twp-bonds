@@ -20,6 +20,7 @@ class BondDB(BaseDB):
     id: Mapped[intpk]
     isin: Mapped[str_200]
     amount: Mapped[int]
+    cur_coupon: Mapped[int] = mapped_column(server_default="0")
     cur_nominal: Mapped[int]
 
 

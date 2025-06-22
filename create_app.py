@@ -6,19 +6,14 @@ import betterlogging as bl
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.storage.redis import RedisStorage
-from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from starlette.templating import Jinja2Templates
-from redis.asyncio import Redis
 
 from config import config
 
-redis = Redis(host=config.redis.host, port=config.redis.port, db=config.redis.db)
-storage = RedisStorage(redis=redis)
 
 bot = Bot(token=config.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher(storage=storage)
+dp = Dispatcher()
 
 
 templates = Jinja2Templates(directory=f"{os.getcwd()}/templates")
@@ -32,14 +27,6 @@ database_url = (
     f"{config.db_name}"
 )
 scheduler = AsyncIOScheduler(timezone="UTC")
-job_store = RedisJobStore(
-    jobs_key="bonds_jobs",
-    run_times_key="bonds_times",
-    host=config.redis.host,
-    port=config.redis.port,
-    db=config.redis.db,
-)
-scheduler.add_jobstore(jobstore=job_store, alias="bonds_jobstore")
 
 
 TLG_PATH = f"/{config.bot_token}"

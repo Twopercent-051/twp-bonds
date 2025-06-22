@@ -52,11 +52,19 @@ async def get_bond_handler(message: Message):
     sql_bond = await BondsDAO.get_one_or_none(isin=isin)
     if sql_bond:
         result = await TransactionsDAO.update_bond(
-            isin=isin, amount=amount, price=int(moex_bond.price * 100), nominal=moex_bond.nominal
+            isin=isin,
+            amount=amount,
+            price=int(moex_bond.price * 100),
+            nominal=moex_bond.nominal,
+            coupon=moex_bond.coupon_price,
         )
     else:
         result = await TransactionsDAO.create_bond(
-            isin=isin, amount=amount, nominal=moex_bond.nominal, price=int(moex_bond.price * 100)
+            isin=isin,
+            amount=amount,
+            nominal=moex_bond.nominal,
+            price=int(moex_bond.price * 100),
+            coupon=moex_bond.coupon_price,
         )
     if not result:
         text = "Баланс не может быть отрицательным"

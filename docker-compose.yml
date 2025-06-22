@@ -1,12 +1,5 @@
 services:
 
-  redis:
-    image: redis:7
-    container_name: wb_app_redis
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
-
   bot:
     image: my_bonds_bot
     container_name: my_bonds_bot
@@ -23,6 +16,3 @@ services:
        - "${OUTER_PORT}:${INNER_PORT}"
     environment:
       - ".env"
-
-volumes:
-  redis_data:
