@@ -60,7 +60,7 @@ class BuyRecommendation:
         result = {}
         while True:
             # Сортировка: сначала по amount, затем по убыванию доходности
-            sorted_bonds = sorted(self.dohod_bonds, key=lambda x: (x.amount, -x.price_return))
+            sorted_bonds = sorted(self.dohod_bonds, key=lambda x: (x.amount * x.price, -x.price_return))
             # Находим бумагу с наименьшим количеством в портфеле, чтобы не "перекачивать" бюджет в одну бумагу
             candidate = sorted_bonds[0]
             if budget < candidate.price:
