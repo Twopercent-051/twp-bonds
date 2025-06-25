@@ -73,7 +73,7 @@ async def get_bond_handler(message: Message):
         result = await TransactionsDAO.update_bond(
             isin=isin,
             amount=amount,
-            price=int(moex_bond.price * 100),
+            price=moex_bond.price,
             nominal=moex_bond.nominal,
             coupon=moex_bond.coupon_price,
         )
@@ -82,7 +82,7 @@ async def get_bond_handler(message: Message):
             isin=isin,
             amount=amount,
             nominal=moex_bond.nominal,
-            price=int(moex_bond.price * 100),
+            price=moex_bond.price,
             coupon=moex_bond.coupon_price,
         )
     if not result:

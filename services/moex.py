@@ -68,8 +68,9 @@ class MoexAPI:
             moex_data_list=[other_moex_data, ofz_moex_data],
             sql_bond=fake_sql_bond,
         )
+        print(bond_data)
         return bond_data
 
 
 if __name__ == "__main__":
-    asyncio.run(MoexAPI.get_one_bond_profile(isin="RU000A1033B9", amount=2))
+    asyncio.run(MoexAPI.get_one_bond_profile(isin="RU000A104SU6", amount=2))

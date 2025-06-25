@@ -59,6 +59,7 @@ class BuyRecommendation:
         self.dohod_bonds.sort(key=lambda x: -x.price_return)
         result = {}
         while True:
+            print(f"Budget: {budget}")
             # Сортировка: сначала по amount, затем по убыванию доходности
             sorted_bonds = sorted(self.dohod_bonds, key=lambda x: (x.amount * x.price, -x.price_return))
             # Находим бумагу с наименьшим количеством в портфеле, чтобы не "перекачивать" бюджет в одну бумагу
@@ -67,7 +68,8 @@ class BuyRecommendation:
                 break
             candidate.amount += 1
             budget -= candidate.price
-            result.update({candidate.isin: candidate.amount})
+            result[candidate.isin] = result.get(candidate.isin, 0) + 1
+            print(f"Result: {result}")
         return result
 
 
@@ -75,7 +77,7 @@ async def test():
     sql_bonds = await BondsDAO.get_many()
     bonds = await MoexAPI.get_bonds_profiles(sql_bonds=sql_bonds)
     service = await BuyRecommendation.create(bonds=bonds)
-    result = service.get(budget=400000)
+    result = service.get(budget=672829)
     print(result)
 
 
