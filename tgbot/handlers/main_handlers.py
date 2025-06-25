@@ -6,6 +6,7 @@ from config import config
 from models.sql_dao import BondsDAO, MoneyBalanceDAO, TransactionsDAO
 from services.dohod import BuyRecommendation
 from services.moex import MoexAPI
+from services.scheduler_service import SchedulerService
 
 router = Router()
 
@@ -84,6 +85,9 @@ async def get_bond_handler(message: Message):
             nominal=moex_bond.nominal,
             price=moex_bond.price,
             coupon=moex_bond.coupon_price,
+        )
+        await SchedulerService.set_bond(
+            isin=isin, coupon_date=moex_bond.coupon_date, redemption_date=moex_bond.redemption_date
         )
     if not result:
         text = "Баланс не может быть отрицательным"
