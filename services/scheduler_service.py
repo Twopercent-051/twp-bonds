@@ -35,7 +35,9 @@ class SchedulerService:
             return None
         text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
         await cls.__send_message(text=text)
-        await MoneyBalanceDAO.create_with_return_id(amount=int(bond.coupon_price * 100), description="coupon payment")
+        await MoneyBalanceDAO.create_with_return_id(
+            amount=int(bond.coupon_price * 100), description=f"coupon_payment {bond.title}"
+        )
         await cls.__set_task(task="part", isin=isin, date=datetime.today() + timedelta(days=3))
         return None
 
@@ -50,7 +52,9 @@ class SchedulerService:
         text = f"💡 Частичное погашение <i>{diff * bond.amount}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
         await cls.__send_message(text=text)
         await BondsDAO.update_by_id(item_id=bond.id, cur_nominal=bond.nominal, cur_coupon=bond.coupon_price)
-        await MoneyBalanceDAO.create_with_return_id(amount=int(diff * bond.amount * 100), description="part redemption")
+        await MoneyBalanceDAO.create_with_return_id(
+            amount=int(diff * bond.amount * 100), description=f"part_redemption {bond.title}"
+        )
         return None
 
     @classmethod
@@ -62,7 +66,7 @@ class SchedulerService:
             return False
         text = f"💡 Полное погашение <i>{bond.price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
         await cls.__send_message(text=text)
-        await MoneyBalanceDAO.create_with_return_id(amount=bond.price, description="bond redemption")
+        await MoneyBalanceDAO.create_with_return_id(amount=bond.price, description=f"bond_redemption {bond.title}")
         await BondsDAO.delete(isin=isin)
         return True
 
@@ -72,7 +76,7 @@ class SchedulerService:
         scheduler.add_job(
             func=methods[task],
             trigger="date",
-            run_date=date.replace(hour=9, minute=0),
+            run_date=date.replace(hour=5, minute=0),
             kwargs={"isin": isin},
             misfire_grace_time=None,
         )
