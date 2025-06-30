@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from operator import itemgetter
 from typing import Literal
 
 from config import config
@@ -96,3 +97,24 @@ class SchedulerService:
                 isin=moex_bond.isin, coupon_date=moex_bond.coupon_date, redemption_date=moex_bond.redemption_date
             )
         scheduler.start()
+
+    @classmethod
+    def get_scheduled_tasks(cls):
+        jobs = scheduler.get_jobs()
+        result = []
+        for job in jobs:
+            params = job.kwargs or {}
+            isin = params.get("isin")
+            func_name = job.func.__name__
+            if func_name == "_coupon_payment":
+                task = "coupon"
+            elif func_name == "_bond_redemption":
+                task = "redemption"
+            elif func_name == "_part_redemption":
+                task = "part"
+            else:
+                task = None
+            if task and isin:
+                result.append({"isin": isin, "task": task, "time": job.next_run_time})  # Время запуска
+        result.sort(key=itemgetter("time"))
+        return result

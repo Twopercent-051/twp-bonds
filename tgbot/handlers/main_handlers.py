@@ -35,6 +35,19 @@ async def get_recommendations_handler(message: Message):
     return None
 
 
+@router.message(Command("tasks"))
+async def get_tasks_handler(message: Message):
+    text = "Список задач:\n"
+    tasks = SchedulerService.get_scheduled_tasks()
+    if len(tasks) == 0:
+        await message.answer(text="Нет задач")
+        return None
+    for task in tasks:
+        text += f"<code>{task['isin']}</code> - {task['task']} - {task['time']}\n"
+    await message.answer(text=text)
+    return None
+
+
 @router.message(F.text.startswith("RUB"))
 async def get_balance_handler(message: Message):
     try:
