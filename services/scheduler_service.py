@@ -33,10 +33,10 @@ class SchedulerService:
         bond = await cls.__get_bond_profile(isin=isin)
         if not bond:
             return None
-        text = f"💡 Выплачено <i>{bond.coupon_price}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
+        text = f"💡 Выплачено <i>{round(bond.coupon_price/100, 2)}₽</i> по облигации <i>{bond.title}</i> <i>({bond.amount}шт)</i>"
         await cls.__send_message(text=text)
         await MoneyBalanceDAO.create_with_return_id(
-            amount=int(bond.coupon_price * 100), description=f"coupon_payment {bond.title}"
+            amount=bond.coupon_price, description=f"coupon_payment {bond.title}"
         )
         await cls.__set_task(task="part", isin=isin, date=datetime.today() + timedelta(days=3))
         return None
