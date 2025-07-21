@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from operator import itemgetter
 from typing import Literal
@@ -24,7 +25,7 @@ class SchedulerService:
         sql_bond = await BondsDAO.get_one_or_none(isin=isin)
         if not sql_bond:
             return None
-        moex_bond = await MoexAPI.get_one_bond_profile(isin=isin, amount=sql_bond.amount)
+        moex_bond = await MoexAPI.get_one_bond_profile(db_bond=sql_bond)
         if not moex_bond:
             return None
         return moex_bond

@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from config import config
+from models.schemas import DbBondDTO
 from models.sql_dao import BondsDAO, MoneyBalanceDAO, TransactionsDAO
 from services.dohod import BuyRecommendation
 from services.moex import MoexAPI
@@ -78,7 +79,8 @@ async def get_bond_handler(message: Message):
     except (IndexError, ValueError):
         text = "Неправильный формат сообщения. Используйте: ISIN количество."
         return await message.answer(text=text)
-    moex_bond = await MoexAPI.get_one_bond_profile(isin=isin, amount=amount)
+    fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0, cur_nominal=1000, cur_coupon=0)
+    moex_bond = await MoexAPI.get_one_bond_profile(db_bond=fake_sql_bond)
     if not moex_bond:
         text = "Облигация не найдена по указанному ISIN."
         return await message.answer(text=text)

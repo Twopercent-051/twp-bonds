@@ -60,17 +60,11 @@ class MoexAPI:
         return sorted(result, key=lambda bond: bond.coupon_date)
 
     @classmethod
-    async def get_one_bond_profile(cls, isin: str, amount: int) -> MoexBondDTO | None:
+    async def get_one_bond_profile(cls, db_bond: DbBondDTO) -> MoexBondDTO | None:
         ofz_moex_data = await cls.__get_request(section="TQOB")
         other_moex_data = await cls.__get_request(section="TQCB")
-        fake_sql_bond = DbBondDTO(isin=isin, amount=amount, id=0, cur_nominal=1000, cur_coupon=0)
         bond_data = await cls.__get_one_bond_data(
             moex_data_list=[other_moex_data, ofz_moex_data],
-            sql_bond=fake_sql_bond,
+            sql_bond=db_bond,
         )
-        print(bond_data)
         return bond_data
-
-
-if __name__ == "__main__":
-    asyncio.run(MoexAPI.get_one_bond_profile(isin="RU000A104SU6", amount=2))
