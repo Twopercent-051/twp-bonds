@@ -40,7 +40,6 @@ class SchedulerService:
         await MoneyBalanceDAO.create_with_return_id(
             amount=bond.coupon_price, description=f"coupon_payment {bond.title}"
         )
-        await cls.__set_task(task="part", isin=isin, date=datetime.today() + timedelta(days=3))
         return None
 
     @classmethod
@@ -48,6 +47,7 @@ class SchedulerService:
         bond = await cls.__get_bond_profile(isin=isin)
         if not bond:
             return None
+        print(bond)
         diff = bond.nominal - bond.cur_nominal
         if diff == 0:
             return None
@@ -87,6 +87,7 @@ class SchedulerService:
     async def set_bond(cls, isin: str, coupon_date: datetime, redemption_date: datetime):
         await cls.__set_task(task="coupon", isin=isin, date=coupon_date)
         await cls.__set_task(task="redemption", isin=isin, date=redemption_date)
+        await cls.__set_task(task="part", isin=isin, date=coupon_date + timedelta(days=3))
 
     @classmethod
     async def start(cls):
@@ -119,3 +120,7 @@ class SchedulerService:
                 result.append({"isin": isin, "task": task, "time": job.next_run_time})  # Время запуска
         result.sort(key=itemgetter("time"))
         return result
+
+
+if __name__ == "__main__":
+    asyncio.run(SchedulerService._part_redemption(isin="RU000A104SU6"))
