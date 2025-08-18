@@ -3,21 +3,38 @@ from datetime import datetime
 from typing import Literal
 
 import aiohttp
+from aiohttp import ClientConnectorError, ClientPayloadError, ClientResponseError, ServerTimeoutError
 from bs4 import BeautifulSoup
 
 from config import config
+from create_app import logger
 from models.schemas import DbBondDTO, MoexBondDTO
 
 
 class MoexAPI:
 
     @staticmethod
-    async def __get_request(section: Literal["TQOB", "TQCB"]) -> str:
+    async def __get_request(section: Literal["TQOB", "TQCB"], retries: int = 10, delay: float = 3) -> str:
         url = f"https://iss.moex.com/iss/engines/stock/markets/bonds/boards/{section}/securities.xml"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, proxy=config.rus_proxy) as resp:
-                print(resp.status)
-                return await resp.text()
+        attempt = 0
+        while True:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url=url, proxy=config.rus_proxy) as resp:
+                        if resp.status == 200:
+                            return await resp.text()
+                        else:
+                            logger.warning(f"MOEX RESP NON-200: {resp.status}")
+                            raise ClientResponseError(resp.request_info, resp.history, status=resp.status)
+            except (ConnectionResetError, ClientConnectorError, ClientPayloadError, ServerTimeoutError) as ex:
+                attempt += 1
+                logger.warning(f"Попытка {attempt}/{retries} не удалась: {ex!r}")
+                if attempt >= retries:
+                    raise
+                await asyncio.sleep(delay)
+            except Exception as ex:
+                logger.error(f"Неожиданная ошибка при запросе MOEX: {ex!r}")
+                raise
 
     @staticmethod
     async def __get_one_bond_data(moex_data_list: list[str], sql_bond: DbBondDTO) -> MoexBondDTO | None:

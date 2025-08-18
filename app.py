@@ -14,6 +14,7 @@ from web_app.router import router as fastapi_router
 
 async def on_startup():
     logger.info("Starting Bot")
+    logger.debug("Bot config: %s", config)
     webhook_info = await bot.get_webhook_info()
     if webhook_info.url != TLG_URL:
         await bot.delete_webhook()
