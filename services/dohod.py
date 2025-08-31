@@ -28,22 +28,24 @@ class BuyRecommendation:
             )
         data = json.loads(response.text)
         sorted_data = sorted(data, key=lambda x: float(x["price_return"]), reverse=True)
-        top_5 = sorted_data[:5]
         result = []
-        for item in top_5:
+        for item in sorted_data:
+            price = int(item["nominal"]) * float(item["price"]) + float(item["nkd"]) * 100
+            if price > 150000:
+                continue
             result.append(
                 DohodItem(
                     isin=item["xml_isin"],
-                    price=int(item["nominal"]) * float(item["price"])
-                    + float(item["nkd"]) * 100,  # предполагается, что price есть в item (или скорректируйте)
+                    price=price,
                     price_return=int(float(item["price_return"]) * 100),
                 )
             )
-        return result
+        return result[:5]
 
     @classmethod
     async def create(cls, bonds: list[MoexBondDTO]) -> "BuyRecommendation":
         result = await cls.parse_dohod()
+        print(f"DOHOD: {result}")
         cur_bonds_amount = {bond.isin: bond.amount for bond in bonds}
         for bond in result:
             amount = cur_bonds_amount.get(bond.isin, 0)
