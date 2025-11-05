@@ -36,7 +36,7 @@ class BuyRecommendation:
             result.append(
                 DohodItem(
                     isin=item["xml_isin"],
-                    price=price,
+                    price=int(price),
                     price_return=int(float(item["price_return"]) * 100),
                 )
             )
