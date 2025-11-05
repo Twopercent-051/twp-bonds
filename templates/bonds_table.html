@@ -7,7 +7,7 @@
     <title>Bond Table</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Fira Mono', 'Consolas', 'Liberation Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
             background-color: #1a1a40;
             color: #fff;
         }
@@ -18,11 +18,13 @@
             margin: 20px 0;
             font-size: 18px;
             text-align: left;
+            font-family: inherit;
         }
 
         th,
         td {
             padding: 12px 15px;
+            font-family: inherit;
         }
 
         th {
@@ -60,60 +62,59 @@
             margin: 20px 0;
             font-size: 20px;
             font-weight: bold;
+            font-family: inherit;
         }
     </style>
 </head>
 
 <body>
-    <h1>Bond Table</h1>
-    <!-- Отображение текущего баланса -->
-    <div class="balance-container">
-        Текущий баланс: {{ current_balance }} ₽
-        <span style="color: {{ 'green' if difference >= 0 else 'red' }};">
+<h1>Bond Table</h1>
+<div class="balance-container">
+    Текущий баланс: {{ current_balance }} ₽
+    <span style="color: {{ 'green' if difference >= 0 else 'red' }};">
             ({{ '+' if difference > 0 else '' }}{{ difference }} ₽)
         </span>
-    </div>
+</div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ISIN</th>
-                <th>Title</th>
-                <th>Amount</th>
-                <th>Coupon Date</th>
-                <th>Coupon Price</th>
-                <th>Nominal</th>
-                <th>Price</th>
-                <th>Redemption Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for bond in bonds %}
-            <tr>
-                <td>{{ bond.id }}</td>
-                <td>{{ bond.isin }}</td>
-                <td>{{ bond.title }}</td>
-                <td>{{ bond.amount }}</td>
-                <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
-                <td>{{ bond.coupon_price / 100 }} ₽</td>
-                <td>{{ bond.nominal / 100 }} ₽</td>
-                <td>{{ bond.price / 100 }} ₽</td>
-                <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
-            </tr>
-            {% endfor %}
-            <!-- Строка ИТОГО -->
-            <tr class="total-row">
-                <td colspan="3">ИТОГО</td>
-                <td>{{ total_amount }}</td>
-                <td></td>
-                <td></td>
-                <td>{{ total_nominal }} ₽</td>
-                <td>{{ total_price }} ₽</td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>ISIN</th>
+        <th>Title</th>
+        <th>Amount</th>
+        <th>Coupon Date</th>
+        <th>Coupon Price</th>
+        <th>Nominal</th>
+        <th>Price</th>
+        <th>Redemption Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for bond in bonds %}
+    <tr>
+        <td>{{ bond.id }}</td>
+        <td>{{ bond.isin }}</td>
+        <td>{{ bond.title }}</td>
+        <td>{{ bond.amount }}</td>
+        <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
+        <td>{{ bond.coupon_price / 100 }} ₽</td>
+        <td>{{ bond.nominal / 100 }} ₽</td>
+        <td>{{ bond.price / 100 }} ₽</td>
+        <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="total-row">
+        <td colspan="3">ИТОГО</td>
+        <td>{{ total_amount }}</td>
+        <td></td>
+        <td></td>
+        <td>{{ total_nominal }} ₽</td>
+        <td>{{ total_price }} ₽</td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
 </body>
 
 </html>
