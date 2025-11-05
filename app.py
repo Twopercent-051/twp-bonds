@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from aiogram.types import Update
 import uvicorn
 
-from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config, scheduler
+from create_app import TLG_PATH, TLG_URL, dp, bot, logger, config
 from tgbot.handlers.main_handlers import router as tg_router
 from services.scheduler_service import SchedulerService
 

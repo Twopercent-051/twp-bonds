@@ -13,6 +13,6 @@ services:
     command: python3 -m app
     restart: unless-stopped
     ports:
-       - "${OUTER_PORT}:${INNER_PORT}"
+       - "127.0.0.1:${OUTER_PORT}:${INNER_PORT}"
     environment:
       - ".env"
