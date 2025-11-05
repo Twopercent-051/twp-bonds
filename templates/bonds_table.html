@@ -8,8 +8,8 @@
     <style>
         body {
             font-family: 'Fira Mono', 'Consolas', 'Liberation Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
-            background-color: #1a1a40;
-            color: #fff;
+            background-color: #e6f5f5; /* светлый фон с намёком на бирюзу */
+            color: #222;
         }
 
         table {
@@ -18,7 +18,6 @@
             margin: 20px 0;
             font-size: 18px;
             text-align: left;
-            font-family: inherit;
         }
 
         th,
@@ -28,33 +27,34 @@
         }
 
         th {
-            background-color: #2a2a72;
+            background-color: #009999; /* Siemens */
             color: #ffffff;
         }
 
         tr {
-            border-bottom: 1px solid #dddddd;
+            border-bottom: 1px solid #78cccc; /* светло-бирюзовый */
         }
 
         tr:nth-of-type(even) {
-            background-color: #2a2a72;
+            background-color: #b2e0e0; /* очень светлый бирюзовый */
         }
 
         tr:nth-of-type(odd) {
-            background-color: #1a1a40;
+            background-color: #e6f5f5; /* почти белый */
         }
 
         tr:hover {
-            background-color: #3b3b8f;
+            background-color: #78cccc; /* ярче при наведении */
         }
 
         td {
-            background-color: #2a2a72;
-            color: #ffffff;
+            background-color: inherit;
+            color: #222;
         }
 
         .total-row td {
-            background-color: #3b3b8f;
+            background-color: #009999;
+            color: #fff;
             font-weight: bold;
         }
 
@@ -63,6 +63,7 @@
             font-size: 20px;
             font-weight: bold;
             font-family: inherit;
+            color: #009999;
         }
     </style>
 </head>
@@ -72,8 +73,8 @@
 <div class="balance-container">
     Текущий баланс: {{ current_balance }} ₽
     <span style="color: {{ 'green' if difference >= 0 else 'red' }};">
-            ({{ '+' if difference > 0 else '' }}{{ difference }} ₽)
-        </span>
+        ({{ '+' if difference > 0 else '' }}{{ difference }} ₽)
+    </span>
 </div>
 
 <table>
@@ -98,9 +99,9 @@
         <td>{{ bond.title }}</td>
         <td>{{ bond.amount }}</td>
         <td>{{ bond.coupon_date.strftime('%d.%m.%Y') }}</td>
-        <td>{{ bond.coupon_price / 100 }} ₽</td>
-        <td>{{ bond.nominal / 100 }} ₽</td>
-        <td>{{ bond.price / 100 }} ₽</td>
+        <td>{{ int(bond.coupon_price / 100) }} ₽</td>
+        <td>{{ int(bond.nominal / 100) }} ₽</td>
+        <td>{{ int(bond.price / 100) }} ₽</td>
         <td>{{ bond.redemption_date.strftime('%d.%m.%Y') }}</td>
     </tr>
     {% endfor %}
@@ -109,12 +110,9 @@
         <td>{{ total_amount }}</td>
         <td></td>
         <td></td>
-        <td>{{ total_nominal }} ₽</td>
-        <td>{{ total_price }} ₽</td>
+        <td>{{ int(total_nominal) }} ₽</td>
+        <td>{{ int(total_price) }} ₽</td>
         <td></td>
     </tr>
     </tbody>
-</table>
-</body>
-
-</html>
+</table
